@@ -79,6 +79,18 @@ const App = {
   renderFocusPill() {
     const pill = document.getElementById('focusPill');
     const a = Focus.active;
+    const runs = Runs.active();
+    // Фокуса нет, но что-то идёт параллельно — покажем ближайшее (не на «Сегодня», там есть блок).
+    if (!a && runs.length && this.current !== 'today') {
+      const r = runs[0];
+      pill.hidden = false;
+      pill.dataset.to = '#today';
+      pill.innerHTML = `<span class="pulse ${r.status === 'ringing' ? 'is-still' : ''}"></span>
+        <span>${r.emoji} ${r.status === 'ringing' ? 'готово!' : `<span data-run-left="${r.id}">${Parallel.leftText(r)}</span>`}</span>
+        <span class="focus-pill__title">${U.esc(r.title)}${runs.length > 1 ? ` +${runs.length - 1}` : ''}</span>`;
+      return;
+    }
+    pill.dataset.to = '#focus';
     if (!a || this.current === 'focus') {
       pill.hidden = true;
       return;
@@ -112,6 +124,7 @@ const App = {
     }
 
     Reminders.tick();
+    Parallel.tick();
 
     // Наступил новый день — обновим экран (если приложение открыто ночью).
     const today = U.today();
@@ -183,8 +196,8 @@ const App = {
       }
     });
 
-    document.getElementById('focusPill').addEventListener('click', () => {
-      location.hash = '#focus';
+    document.getElementById('focusPill').addEventListener('click', (event) => {
+      location.hash = event.currentTarget.dataset.to || '#focus';
     });
   },
 };

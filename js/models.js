@@ -546,6 +546,96 @@ const Focus = {
   },
 };
 
+// ---------------- Параллельные дела ----------------
+// То, что идёт само и не требует внимания: стирка, расчёт программы,
+// лекция в наушниках. Их может быть сколько угодно одновременно —
+// в отличие от фокус-сессии (внимание у человека одно).
+const Runs = {
+  all() {
+    return Store.db.runs;
+  },
+
+  get(id) {
+    return Store.find('runs', id);
+  },
+
+  // Идут сейчас или уже закончились, но ещё не отмечены.
+  active() {
+    return this.all()
+      .filter((r) => r.status === 'running' || r.status === 'ringing')
+      .sort((a, b) => (a.ends_at || '9999').localeCompare(b.ends_at || '9999'));
+  },
+
+  forTask(taskId) {
+    return this.active().find((r) => r.task_id === taskId);
+  },
+
+  start({ title, emoji = '⏳', minutes = null, after = '', taskId = null }) {
+    const now = new Date();
+    return Store.save('runs', {
+      id: U.uid(),
+      task_id: taskId,
+      title: title.trim(),
+      emoji,
+      minutes,                                   // null — без таймера («идёт, пока не отмечу»)
+      after_text: after.trim(),                  // что сделать, когда закончится
+      started_at: now.toISOString(),
+      ends_at: minutes ? new Date(now.getTime() + minutes * 60000).toISOString() : null,
+      status: 'running',                         // 'running' | 'ringing' | 'done' | 'stopped'
+      finished_at: null,
+      created_at: now.toISOString(),
+      updated_at: now.toISOString(),
+    });
+  },
+
+  leftMs(run) {
+    return run.ends_at ? Math.max(0, new Date(run.ends_at).getTime() - Date.now()) : null;
+  },
+
+  elapsedMs(run) {
+    return Date.now() - new Date(run.started_at).getTime();
+  },
+
+  progress(run) {
+    if (!run.ends_at) return null;
+    const total = new Date(run.ends_at).getTime() - new Date(run.started_at).getTime();
+    return Math.min(1, this.elapsedMs(run) / total);
+  },
+
+  addMinutes(id, n) {
+    const run = this.get(id);
+    if (!run) return;
+    const base = Math.max(Date.now(), run.ends_at ? new Date(run.ends_at).getTime() : Date.now());
+    run.ends_at = new Date(base + n * 60000).toISOString();
+    run.minutes = (run.minutes || 0) + n;
+    run.status = 'running';
+    Store.save('runs', run);
+  },
+
+  finish(id, status = 'done') {
+    const run = this.get(id);
+    if (!run) return;
+    run.status = status;
+    run.finished_at = U.nowIso();
+    Store.save('runs', run);
+  },
+
+  // Какие дела только что закончились по таймеру (вызывается каждую секунду).
+  checkEnded() {
+    const now = Date.now();
+    const ended = this.all().filter((r) => r.status === 'running' && r.ends_at && new Date(r.ends_at).getTime() <= now);
+    ended.forEach((r) => {
+      r.status = 'ringing';
+      Store.save('runs', r, { silent: true });
+    });
+    return ended;
+  },
+
+  doneOn(date) {
+    return this.all().filter((r) => r.status === 'done' && r.finished_at && U.dayKey(new Date(r.finished_at)) === date);
+  },
+};
+
 // ---------------- Статистика для экрана «Прогресс» ----------------
 const Stats = {
   // «Победы» за день: всё, что получилось, складывается вместе.
@@ -555,7 +645,8 @@ const Stats = {
     const minutes = Focus.minutesOn(date);
     const habits = Habits.checksOn(date).length;
     const hours = Hours.filledOn(date).length;
-    return { date, tasks, sessions, minutes, habits, hours, wins: tasks + sessions + habits };
+    const runs = Runs.doneOn(date).length;
+    return { date, tasks, sessions, minutes, habits, hours, runs, wins: tasks + sessions + habits };
   },
 
   week() {

@@ -21,7 +21,7 @@
 // так же будут называться колонки в Supabase, и ничего не надо переименовывать.
 
 // Список «таблиц». Такие же таблицы описаны в supabase/schema.sql.
-const TABLES = ['tasks', 'habits', 'habit_checks', 'hourly_entries', 'focus_sessions', 'day_notes'];
+const TABLES = ['tasks', 'habits', 'habit_checks', 'hourly_entries', 'focus_sessions', 'day_notes', 'runs'];
 
 // ------------------------------------------------------------
 // 1. Локальный адаптер: всё хранится в localStorage этого браузера.
