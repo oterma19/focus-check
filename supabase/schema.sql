@@ -107,6 +107,24 @@ create table if not exists public.day_notes (
   unique (user_id, date)
 );
 
+-- ---------- Параллельные дела (стирка, программа, лекция) ----------
+create table if not exists public.runs (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null default auth.uid() references auth.users (id) on delete cascade,
+  task_id     uuid references public.tasks (id) on delete set null,
+  title       text not null check (char_length(title) between 1 and 120),
+  emoji       text not null default '⏳',
+  minutes     integer check (minutes is null or minutes > 0),   -- null = без таймера
+  after_text  text not null default '',                        -- что сделать, когда закончится
+  started_at  timestamptz not null,
+  ends_at     timestamptz,
+  status      text not null default 'running' check (status in ('running', 'ringing', 'done', 'stopped')),
+  finished_at timestamptz,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+create index if not exists runs_user_status_idx on public.runs (user_id, status);
+
 -- ============================================================
 -- Row Level Security: «каждый видит только своё»
 -- ============================================================
@@ -117,6 +135,7 @@ alter table public.habit_checks   enable row level security;
 alter table public.hourly_entries enable row level security;
 alter table public.focus_sessions enable row level security;
 alter table public.day_notes      enable row level security;
+alter table public.runs           enable row level security;
 
 -- Профиль: id профиля = id пользователя.
 drop policy if exists "own profile" on public.profiles;
@@ -131,7 +150,7 @@ create policy "own profile" on public.profiles
 do $$
 declare t text;
 begin
-  foreach t in array array['tasks', 'habits', 'habit_checks', 'hourly_entries', 'focus_sessions', 'day_notes']
+  foreach t in array array['tasks', 'habits', 'habit_checks', 'hourly_entries', 'focus_sessions', 'day_notes', 'runs']
   loop
     execute format('drop policy if exists "own rows" on public.%I', t);
     execute format(
@@ -145,11 +164,11 @@ end $$;
 -- Анонимным посетителям (role anon) доступ не даём вовсе.
 grant select, insert, update, delete on
   public.profiles, public.tasks, public.habits, public.habit_checks,
-  public.hourly_entries, public.focus_sessions, public.day_notes
+  public.hourly_entries, public.focus_sessions, public.day_notes, public.runs
 to authenticated;
 
 -- ============================================================
 -- Проверка после применения (запускать по одной строке):
 --   select tablename, rowsecurity from pg_tables where schemaname = 'public';
---   → у всех 7 таблиц rowsecurity = true
+--   → у всех 8 таблиц rowsecurity = true
 -- ============================================================
