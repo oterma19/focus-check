@@ -9,7 +9,7 @@
 // Ваши данные (задачи и т.д.) здесь НЕ хранятся — они в памяти браузера.
 // ============================================================
 
-const CACHE = 'focus-check-v3';
+const CACHE = 'focus-check-v4';
 
 const FILES = [
   './',
@@ -29,6 +29,7 @@ const FILES = [
   './js/reminders.js',
   './js/screens/today.js',
   './js/screens/elephant.js',
+  './js/screens/parallel.js',
   './js/screens/focus.js',
   './js/screens/routine.js',
   './js/screens/progress.js',

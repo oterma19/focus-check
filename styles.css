@@ -393,6 +393,35 @@ select.input { padding-right: 8px; }
 .textarea { min-height: 0; padding: 12px 14px; resize: vertical; line-height: 1.45; }
 .field .btn { align-self: flex-start; }
 
+/* ---------- ⏳ Параллельные дела ---------- */
+.card--lav { background: var(--lav-soft); border-color: transparent; box-shadow: none; }
+.parallel-start {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; border-radius: var(--radius-sm);
+  border: 1px dashed var(--line); background: transparent; color: var(--muted);
+  text-align: left; font-size: 0.925rem;
+}
+.parallel-start:hover { border-color: var(--lav); color: var(--text); }
+.runs { display: flex; flex-direction: column; gap: 8px; }
+.run {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 8px 10px 12px;
+  background: var(--surface); border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+}
+.run.is-ringing { border-color: var(--sun); box-shadow: 0 0 0 3px var(--sun-soft); animation: pop 0.4s ease; }
+.run__emoji { font-size: 1.4rem; line-height: 1; }
+.run { flex-wrap: wrap; }
+.run__body { flex: 1; min-width: 150px; display: flex; flex-direction: column; gap: 4px; }
+.run.is-ringing .run__actions { flex-basis: 100%; justify-content: flex-start; gap: 8px; padding-left: 34px; }
+.run__title { font-weight: 600; overflow-wrap: anywhere; }
+.run__meta { font-size: 0.825rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.run .bar span { background: var(--lav); }
+.run__actions { display: flex; align-items: center; gap: 2px; flex-wrap: wrap; justify-content: flex-end; }
+.run__actions .icon-btn { font-size: 0.8rem; font-weight: 700; }
+.tag--run { background: var(--lav-soft); color: var(--lav); }
+.input--mini { width: 110px; min-height: 38px; border-radius: 999px; }
+
 /* ---------- 🔔 Напоминания ---------- */
 .reminder-box { padding: 12px 14px; border-radius: var(--radius-sm); background: var(--surface-2); }
 a.chip { text-decoration: none; color: inherit; }
