@@ -1,0 +1,17 @@
+{
+  "name": "Focus Check",
+  "short_name": "Focus Check",
+  "description": "Дела, фокус и рутина — без давления",
+  "lang": "ru",
+  "start_url": "./focus-check.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f1ea",
+  "theme_color": "#f5f1ea",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
