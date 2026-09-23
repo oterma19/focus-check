@@ -24,7 +24,9 @@ Screens.today = {
 
       ${this.energyBlock()}
       ${this.mainBlock(main, all)}
+      ${Runs.active().length ? Parallel.block() : ''}
       ${this.quickAdd()}
+      ${Runs.active().length ? '' : Parallel.block()}
       ${leftovers.length ? this.leftoversBlock(leftovers) : ''}
       ${this.listBlock(all, todo, main)}
       ${Elephant.block()}
@@ -159,6 +161,8 @@ Screens.today = {
     if (showDate) meta.push(`<span class="tag tag--soft">${U.relDay(t.date)}</span>`);
     const parent = Tasks.parentOf(t);
     if (parent) meta.push(`<span class="tag tag--eleph">🐘 ${U.esc(parent.title)}</span>`);
+    const run = Runs.forTask(t.id);
+    if (run) meta.push(`<span class="tag tag--run">${run.emoji} идёт параллельно</span>`);
     if (t.first_step && !done) meta.push(`<span>→ ${U.esc(t.first_step)}</span>`);
 
     return `
@@ -272,6 +276,7 @@ const TaskSheet = {
           ? `<button class="btn btn--ghost" data-action="toggleTask" data-id="${t.id}">Вернуть в работу</button>`
           : `<button class="btn btn--primary" data-action="quickFocus" data-id="${t.id}">${Icon.play} Фокус</button>
              <button class="btn btn--ghost" data-action="toggleTask" data-id="${t.id}">${Icon.check} Готово</button>
+             <button class="btn btn--ghost" data-action="runForTask" data-id="${t.id}">⏳ Параллельно</button>
              <button class="btn btn--ghost ${t.is_main ? 'is-star' : ''}" data-action="toggleMain" data-id="${t.id}">${Icon.star} ${t.is_main ? 'Главное' : 'Сделать главным'}</button>`}
         <button class="icon-btn icon-btn--danger" data-action="deleteTask" data-id="${t.id}" aria-label="Удалить задачу">${Icon.trash}</button>
       </div>`;

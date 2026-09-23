@@ -66,6 +66,7 @@ Screens.progress = {
     Tasks.doneOn(d.date).forEach((t) => items.push(`✓ ${U.esc(t.title)}`));
     if (d.sessions) items.push(`⏱ ${d.sessions} ${U.plural(d.sessions, ['фокус-сессия', 'фокус-сессии', 'фокус-сессий'])}, ${d.minutes} мин`);
     if (d.habits) items.push(`🌿 ${d.habits} ${U.plural(d.habits, ['привычка', 'привычки', 'привычек'])}`);
+    if (d.runs) items.push(`⏳ ${d.runs} ${U.plural(d.runs, ['параллельное дело', 'параллельных дела', 'параллельных дел'])}`);
     if (d.hours) items.push(`🕐 ${d.hours} ${U.plural(d.hours, ['час отмечен', 'часа отмечено', 'часов отмечено'])}`);
     if (!items.length) {
       return `<p class="muted">Пока тихо — и это нормально. Раз приложение открыто — забота о себе уже началась.</p>`;

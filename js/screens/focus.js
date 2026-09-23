@@ -15,6 +15,7 @@ Screens.focus = {
     return `
       ${UI.header({ title: 'Фокус', subtitle: 'Короткие сессии, чтобы начать и не выдохнуться' })}
       ${!a ? this.setup() : a.status === 'review' ? this.review(a) : this.running(a)}
+      ${Parallel.block({ compact: true })}
       ${this.history()}
     `;
   },
